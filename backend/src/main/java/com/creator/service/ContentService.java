@@ -317,16 +317,22 @@ public class ContentService {
             throw new BusinessException("余额不足，请先充值");
         }
         
-        user.setBalance(user.getBalance().subtract(content.getPrice()));
-        userMapper.updateById(user);
+        int updateCount = userMapper.updateBalanceWithCAS(userId, content.getPrice(), user.getVersion());
+        if (updateCount != 1) {
+            throw new BusinessException("当前用户余额已变更，请刷新后重试");
+        }
         
         Creator creator = creatorMapper.selectById(content.getCreatorId());
-        creator.setTotalIncome(creator.getTotalIncome().add(content.getPrice()));
-        creatorMapper.updateById(creator);
+        int incomeUpdateCount = creatorMapper.incrementTotalIncome(creator.getId(), content.getPrice());
+        if (incomeUpdateCount != 1) {
+            throw new BusinessException("更新创作者收益失败");
+        }
         
         User creatorUser = userMapper.selectById(creator.getUserId());
-        creatorUser.setBalance(creatorUser.getBalance().add(content.getPrice()));
-        userMapper.updateById(creatorUser);
+        int creatorBalanceUpdate = userMapper.addBalanceWithCAS(creatorUser.getId(), content.getPrice(), creatorUser.getVersion());
+        if (creatorBalanceUpdate != 1) {
+            throw new BusinessException("更新创作者账户余额失败");
+        }
         
         Purchase purchase = new Purchase();
         purchase.setUserId(userId);
