@@ -1,6 +1,8 @@
 package com.creator.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.creator.common.BusinessException;
 import com.creator.common.PageResult;
@@ -317,19 +319,33 @@ public class ContentService {
             throw new BusinessException("余额不足，请先充值");
         }
         
-        int updateCount = userMapper.updateBalanceWithCAS(userId, content.getPrice(), user.getVersion());
+        BigDecimal newBalance = user.getBalance().subtract(content.getPrice());
+        LambdaUpdateWrapper<User> userUpdateWrapper = Wrappers.lambdaUpdate();
+        userUpdateWrapper.eq(User::getId, userId)
+                         .eq(User::getVersion, user.getVersion())
+                         .ge(User::getBalance, content.getPrice());
+        user.setBalance(newBalance);
+        int updateCount = userMapper.update(user, userUpdateWrapper);
         if (updateCount != 1) {
             throw new BusinessException("当前用户余额已变更，请刷新后重试");
         }
         
         Creator creator = creatorMapper.selectById(content.getCreatorId());
-        int incomeUpdateCount = creatorMapper.incrementTotalIncome(creator.getId(), content.getPrice());
+        LambdaUpdateWrapper<Creator> creatorUpdateWrapper = Wrappers.lambdaUpdate();
+        creatorUpdateWrapper.eq(Creator::getId, creator.getId())
+                            .eq(Creator::getVersion, creator.getVersion());
+        creator.setTotalIncome(creator.getTotalIncome().add(content.getPrice()));
+        int incomeUpdateCount = creatorMapper.update(creator, creatorUpdateWrapper);
         if (incomeUpdateCount != 1) {
             throw new BusinessException("更新创作者收益失败");
         }
         
         User creatorUser = userMapper.selectById(creator.getUserId());
-        int creatorBalanceUpdate = userMapper.addBalanceWithCAS(creatorUser.getId(), content.getPrice(), creatorUser.getVersion());
+        LambdaUpdateWrapper<User> creatorBalanceWrapper = Wrappers.lambdaUpdate();
+        creatorBalanceWrapper.eq(User::getId, creatorUser.getId())
+                             .eq(User::getVersion, creatorUser.getVersion());
+        creatorUser.setBalance(creatorUser.getBalance().add(content.getPrice()));
+        int creatorBalanceUpdate = userMapper.update(creatorUser, creatorBalanceWrapper);
         if (creatorBalanceUpdate != 1) {
             throw new BusinessException("更新创作者账户余额失败");
         }
