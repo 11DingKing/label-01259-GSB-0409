@@ -1,6 +1,7 @@
 package com.creator.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.creator.common.BusinessException;
 import com.creator.common.PageResult;
@@ -317,19 +318,21 @@ public class ContentService {
             throw new BusinessException("余额不足，请先充值");
         }
         
-        int updateCount = userMapper.decreaseBalanceWithVersion(
-                userId,
-                content.getPrice(),
-                user.getVersion()
-        );
+        user.setBalance(user.getBalance().subtract(content.getPrice()));
+        int updateCount = userMapper.updateById(user);
         if (updateCount != 1) {
             throw new BusinessException("当前购买人数过多，请稍后重试");
         }
         
         Creator creator = creatorMapper.selectById(content.getCreatorId());
-        creatorMapper.increaseTotalIncome(creator.getId(), content.getPrice());
         
-        userMapper.increaseBalance(creator.getUserId(), content.getPrice());
+        userMapper.update(null, Wrappers.lambdaUpdate(User.class)
+                .setSql("balance = balance + " + content.getPrice())
+                .eq(User::getId, creator.getUserId()));
+        
+        creatorMapper.update(null, Wrappers.lambdaUpdate(Creator.class)
+                .setSql("total_income = total_income + " + content.getPrice())
+                .eq(Creator::getId, creator.getId()));
         
         Purchase purchase = new Purchase();
         purchase.setUserId(userId);
