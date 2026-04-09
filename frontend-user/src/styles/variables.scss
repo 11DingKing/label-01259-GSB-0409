@@ -1,0 +1,121 @@
+// ============================================
+// 设计系统 - 仿照 Patreon/Medium/Substack 风格
+// ============================================
+
+// 主色调 - 温暖的珊瑚橙 (Patreon风格)
+$primary-color: #ff6b6b;
+$primary-light: #ff8e8e;
+$primary-dark: #e85555;
+
+// 辅助色
+$accent-color: #4ecdc4; // 青绿色点缀
+$success-color: #2ecc71;
+$warning-color: #f1c40f;
+$danger-color: #e74c3c;
+$info-color: #3498db;
+
+// 中性色 - 更柔和的灰度
+$text-primary: #1a1a2e;
+$text-secondary: #4a4a68;
+$text-muted: #8e8ea9;
+$text-placeholder: #b8b8d1;
+$border-color: #e8e8f0;
+$border-light: #f0f0f8;
+$background-color: #fafafc;
+$background-warm: #fff9f7;
+$card-background: #ffffff;
+
+// 渐变色
+$gradient-primary: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+$gradient-accent: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+$gradient-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+$gradient-warm: linear-gradient(135deg, #fff9f7 0%, #ffe8e0 100%);
+
+// 字体
+$font-family:
+  "Inter",
+  -apple-system,
+  BlinkMacSystemFont,
+  "Segoe UI",
+  "PingFang SC",
+  "Microsoft YaHei",
+  sans-serif;
+$font-family-display: "Playfair Display", Georgia, serif;
+
+// 字体大小
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size-base: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-2xl: 24px;
+$font-size-3xl: 32px;
+$font-size-4xl: 40px;
+$font-size-5xl: 48px;
+
+// 字重
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
+// 间距系统 (8px基准)
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 48px;
+$spacing-3xl: 64px;
+$spacing-4xl: 96px;
+
+// 圆角
+$border-radius-sm: 6px;
+$border-radius-md: 10px;
+$border-radius-lg: 16px;
+$border-radius-xl: 24px;
+$border-radius-2xl: 32px;
+$border-radius-full: 9999px;
+
+// 阴影 - 更柔和的阴影
+$shadow-xs: 0 1px 2px rgba(26, 26, 46, 0.04);
+$shadow-sm: 0 2px 4px rgba(26, 26, 46, 0.06);
+$shadow-md: 0 4px 12px rgba(26, 26, 46, 0.08);
+$shadow-lg: 0 8px 24px rgba(26, 26, 46, 0.12);
+$shadow-xl: 0 16px 48px rgba(26, 26, 46, 0.16);
+$shadow-glow: 0 0 40px rgba(255, 107, 107, 0.2);
+
+// 过渡
+$transition-fast: 0.15s ease;
+$transition-base: 0.25s ease;
+$transition-slow: 0.4s ease;
+$transition-bounce: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+// 容器宽度
+$container-sm: 640px;
+$container-md: 768px;
+$container-lg: 1024px;
+$container-xl: 1200px;
+$container-2xl: 1400px;
+
+// 预计算的颜色变量（避免使用 Dart Sass 3.0 弃用的全局函数）
+$primary-light-5: #ff9e9e; // lighten($primary-color, 20%)
+$primary-light-7: #ffb8b8; // lighten($primary-color, 30%)
+$primary-light-9: #ffd1d1; // lighten($primary-color, 38%)
+
+// Element Plus 主题覆盖
+:root {
+  --el-color-primary: #{$primary-color};
+  --el-color-primary-light-3: #{$primary-light};
+  --el-color-primary-light-5: #{$primary-light-5};
+  --el-color-primary-light-7: #{$primary-light-7};
+  --el-color-primary-light-9: #{$primary-light-9};
+  --el-color-primary-dark-2: #{$primary-dark};
+  --el-border-radius-base: #{$border-radius-md};
+  --el-font-family: #{$font-family};
+  --el-text-color-primary: #{$text-primary};
+  --el-text-color-regular: #{$text-secondary};
+  --el-border-color: #{$border-color};
+  --el-fill-color-light: #{$background-color};
+}

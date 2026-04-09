@@ -1,0 +1,43 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backend
+backend/target/
+backend/*.jar
+backend/*.log
+backend/logs/
+
+# Frontend User
+frontend-user/node_modules/
+frontend-user/dist/
+frontend-user/.env.local
+frontend-user/.env.*.local
+frontend-user/npm-debug.log*
+frontend-user/yarn-debug.log*
+frontend-user/yarn-error.log*
+
+# Frontend Admin
+frontend-admin/node_modules/
+frontend-admin/dist/
+frontend-admin/.env.local
+frontend-admin/.env.*.local
+frontend-admin/npm-debug.log*
+frontend-admin/yarn-debug.log*
+frontend-admin/yarn-error.log*
+
+# Docker
+*.log
+
+# Temp
+*.tmp
+*.temp
+*.swp
+*~

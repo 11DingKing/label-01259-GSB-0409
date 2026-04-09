@@ -1,0 +1,299 @@
+@use "./variables.scss" as *;
+
+// ============================================
+// 全局样式 - 现代化设计系统
+// ============================================
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-family;
+  font-size: $font-size-base;
+  color: $text-primary;
+  background-color: $background-color;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+// 链接样式
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: $primary-dark;
+  }
+}
+
+// 图片
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+// 容器
+.container {
+  max-width: $container-xl;
+  margin: 0 auto;
+  padding: 0 $spacing-lg;
+
+  @media (min-width: 1600px) {
+    max-width: $container-2xl;
+  }
+
+  @media (max-width: 768px) {
+    padding: 0 $spacing-md;
+  }
+}
+
+.container-narrow {
+  max-width: $container-md;
+  margin: 0 auto;
+  padding: 0 $spacing-lg;
+}
+
+// 卡片基础样式
+.card {
+  background: $card-background;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-md;
+  transition: all $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-lg;
+  }
+}
+
+// 标题样式
+.page-title {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  margin-bottom: $spacing-lg;
+  letter-spacing: -0.02em;
+}
+
+.section-title {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  margin-bottom: $spacing-lg;
+  letter-spacing: -0.01em;
+}
+
+// 文本工具类
+.text-secondary {
+  color: $text-secondary;
+}
+
+.text-muted {
+  color: $text-muted;
+}
+
+.text-primary-color {
+  color: $primary-color;
+}
+
+.text-center {
+  text-align: center;
+}
+
+// 渐变文字
+.gradient-text {
+  background: $gradient-primary;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// 按钮样式
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  background: $gradient-primary;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: $border-radius-full;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-base;
+  cursor: pointer;
+  transition: all $transition-base;
+  box-shadow: 0 4px 14px rgba(255, 107, 107, 0.35);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.45);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  background: $card-background;
+  color: $text-primary;
+  border: 2px solid $border-color;
+  padding: 10px 26px;
+  border-radius: $border-radius-full;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-base;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    border-color: $primary-color;
+    color: $primary-color;
+    background: rgba($primary-color, 0.05);
+  }
+}
+
+// 滚动条样式
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $border-color;
+  border-radius: $border-radius-full;
+
+  &:hover {
+    background: $text-muted;
+  }
+}
+
+// 选中文本样式
+::selection {
+  background: rgba($primary-color, 0.2);
+  color: $text-primary;
+}
+
+// Element Plus 样式覆盖
+.el-button--primary {
+  background: $gradient-primary !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(255, 107, 107, 0.3);
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base !important;
+
+  &:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.el-button {
+  border-radius: $border-radius-full !important;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base !important;
+}
+
+.el-card {
+  border-radius: $border-radius-lg !important;
+  border: none !important;
+  box-shadow: $shadow-md !important;
+}
+
+.el-input__wrapper {
+  border-radius: $border-radius-md !important;
+  box-shadow: none !important;
+  border: 2px solid $border-color !important;
+  transition: all $transition-fast !important;
+
+  &:hover {
+    border-color: $text-muted !important;
+  }
+
+  &.is-focus {
+    border-color: $primary-color !important;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1) !important;
+  }
+}
+
+.el-tag {
+  border-radius: $border-radius-full !important;
+  border: none !important;
+  font-weight: $font-weight-medium;
+}
+
+.el-avatar {
+  border: 3px solid $card-background;
+  box-shadow: $shadow-sm;
+}
+
+.el-dialog {
+  border-radius: $border-radius-xl !important;
+  overflow: hidden;
+}
+
+.el-message-box {
+  border-radius: $border-radius-lg !important;
+}
+
+// 动画
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
