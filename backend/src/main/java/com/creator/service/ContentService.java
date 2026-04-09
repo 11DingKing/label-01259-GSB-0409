@@ -318,8 +318,15 @@ public class ContentService {
             throw new BusinessException("余额不足，请先充值");
         }
         
-        user.setBalance(user.getBalance().subtract(content.getPrice()));
-        int updateCount = userMapper.updateById(user);
+        BigDecimal subtractAmount = content.getPrice();
+        Integer currentVersion = user.getVersion();
+        
+        user.setBalance(user.getBalance().subtract(subtractAmount));
+        
+        int updateCount = userMapper.update(user, Wrappers.lambdaUpdate(User.class)
+                .eq(User::getId, user.getId())
+                .eq(User::getVersion, currentVersion));
+        
         if (updateCount != 1) {
             throw new BusinessException("当前购买人数过多，请稍后重试");
         }
@@ -327,11 +334,11 @@ public class ContentService {
         Creator creator = creatorMapper.selectById(content.getCreatorId());
         
         userMapper.update(null, Wrappers.lambdaUpdate(User.class)
-                .setSql("balance = balance + " + content.getPrice())
+                .setSql("balance = balance + {0}", subtractAmount)
                 .eq(User::getId, creator.getUserId()));
         
         creatorMapper.update(null, Wrappers.lambdaUpdate(Creator.class)
-                .setSql("total_income = total_income + " + content.getPrice())
+                .setSql("total_income = total_income + {0}", subtractAmount)
                 .eq(Creator::getId, creator.getId()));
         
         Purchase purchase = new Purchase();
