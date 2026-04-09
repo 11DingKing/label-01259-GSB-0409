@@ -248,8 +248,8 @@ const handlePurchase = async () => {
     await purchaseContent(content.value.id)
     ElMessage.success('购买成功')
     showPurchaseDialog.value = false
-    loadContent()
-    userStore.fetchUserInfo() 
+    await loadContent()
+    await userStore.fetchUserInfo() 
   } catch (error) { 
     console.error(error) 
   } finally { 
