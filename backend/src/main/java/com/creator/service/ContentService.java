@@ -1,6 +1,7 @@
 package com.creator.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.creator.common.BusinessException;
 import com.creator.common.PageResult;
@@ -317,16 +318,28 @@ public class ContentService {
             throw new BusinessException("余额不足，请先充值");
         }
         
-        user.setBalance(user.getBalance().subtract(content.getPrice()));
-        userMapper.updateById(user);
+        BigDecimal subtractAmount = content.getPrice();
+        Integer currentVersion = user.getVersion();
+        
+        user.setBalance(user.getBalance().subtract(subtractAmount));
+        
+        int updateCount = userMapper.update(user, Wrappers.lambdaUpdate(User.class)
+                .eq(User::getId, user.getId())
+                .eq(User::getVersion, currentVersion));
+        
+        if (updateCount != 1) {
+            throw new BusinessException("当前购买人数过多，请稍后重试");
+        }
         
         Creator creator = creatorMapper.selectById(content.getCreatorId());
-        creator.setTotalIncome(creator.getTotalIncome().add(content.getPrice()));
-        creatorMapper.updateById(creator);
         
-        User creatorUser = userMapper.selectById(creator.getUserId());
-        creatorUser.setBalance(creatorUser.getBalance().add(content.getPrice()));
-        userMapper.updateById(creatorUser);
+        userMapper.update(null, Wrappers.lambdaUpdate(User.class)
+                .setSql("balance = balance + {0}", subtractAmount)
+                .eq(User::getId, creator.getUserId()));
+        
+        creatorMapper.update(null, Wrappers.lambdaUpdate(Creator.class)
+                .setSql("total_income = total_income + {0}", subtractAmount)
+                .eq(Creator::getId, creator.getId()));
         
         Purchase purchase = new Purchase();
         purchase.setUserId(userId);
