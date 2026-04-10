@@ -38,6 +38,9 @@ public class Creator {
     @TableLogic
     private Integer deleted;
     
+    @Version
+    private Integer version;
+    
     // 非数据库字段
     @TableField(exist = false)
     private String username;
