@@ -292,48 +292,59 @@ public class ContentService {
     @Transactional
     public void purchaseContent(Long id) {
         Long userId = UserContext.getUserId();
-        
+
         Content content = contentMapper.selectById(id);
         if (content == null) {
             throw new BusinessException("内容不存在");
         }
-        
+
         if (content.getIsPaid() != 1) {
             throw new BusinessException("该内容为免费内容");
         }
-        
+
         Long count = purchaseMapper.selectCount(
                 new LambdaQueryWrapper<Purchase>()
                         .eq(Purchase::getUserId, userId)
                         .eq(Purchase::getContentId, id)
         );
-        
+
         if (count > 0) {
             throw new BusinessException("您已购买过该内容");
         }
-        
+
         User user = userMapper.selectById(userId);
         if (user.getBalance().compareTo(content.getPrice()) < 0) {
             throw new BusinessException("余额不足，请先充值");
         }
-        
-        user.setBalance(user.getBalance().subtract(content.getPrice()));
-        userMapper.updateById(user);
-        
+
+        int affectedRows = userMapper.deductBalanceWithVersion(
+                userId, content.getPrice(), user.getVersion());
+        if (affectedRows == 0) {
+            throw new BusinessException("账户余额更新失败，请重试");
+        }
+
         Creator creator = creatorMapper.selectById(content.getCreatorId());
-        creator.setTotalIncome(creator.getTotalIncome().add(content.getPrice()));
-        creatorMapper.updateById(creator);
-        
+        if (creator == null) {
+            throw new BusinessException("创作者信息不存在");
+        }
+
+        creatorMapper.incrementTotalIncome(creator.getId(), content.getPrice());
+
         User creatorUser = userMapper.selectById(creator.getUserId());
-        creatorUser.setBalance(creatorUser.getBalance().add(content.getPrice()));
-        userMapper.updateById(creatorUser);
-        
+        if (creatorUser != null) {
+            int creatorBalanceResult = userMapper.addBalanceWithVersion(
+                    creator.getUserId(), content.getPrice(), creatorUser.getVersion());
+            if (creatorBalanceResult == 0) {
+                throw new BusinessException("创作者余额更新失败，请重试");
+            }
+        }
+
         Purchase purchase = new Purchase();
         purchase.setUserId(userId);
         purchase.setContentId(id);
         purchase.setAmount(content.getPrice());
         purchaseMapper.insert(purchase);
-        
+
         log.info("用户购买内容: userId={}, contentId={}, amount={}", userId, id, content.getPrice());
     }
     

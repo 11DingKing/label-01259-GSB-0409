@@ -35,4 +35,7 @@ public class User {
     
     @TableLogic
     private Integer deleted;
+    
+    @Version
+    private Integer version;
 }

@@ -236,25 +236,28 @@ const loadComments = async () => { commentsLoading.value = true; try { const res
 const goToCreator = () => router.push(`/creator/${content.value.creatorId}`)
 const handleLike = async () => { if (!userStore.isLoggedIn) { ElMessage.warning('请先登录'); router.push('/login'); return } likeLoading.value = true; try { await likeContent(content.value.id); content.value.isLiked = !content.value.isLiked; content.value.likeCount += content.value.isLiked ? 1 : -1 } catch (error) { console.error(error) } finally { likeLoading.value = false } }
 
-const handlePurchase = async () => { 
-  if (!userStore.isLoggedIn) { 
-    ElMessage.warning('请先登录'); 
-    router.push('/login'); 
-    return 
-  } 
-  
+const handlePurchase = async () => {
+  if (!userStore.isLoggedIn) {
+    ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
+
   purchaseLoading.value = true
-  try { 
+  try {
     await purchaseContent(content.value.id)
     ElMessage.success('购买成功')
     showPurchaseDialog.value = false
-    loadContent()
-    userStore.fetchUserInfo() 
-  } catch (error) { 
-    console.error(error) 
-  } finally { 
-    purchaseLoading.value = false 
-  } 
+    await loadContent()
+    await userStore.fetchUserInfo()
+  } catch (error) {
+    console.error(error)
+    if (error.response?.data?.message) {
+      ElMessage.error(error.response.data.message)
+    }
+  } finally {
+    purchaseLoading.value = false
+  }
 }
 const handleComment = async () => { if (!commentText.value.trim()) { ElMessage.warning('请输入评论内容'); return } commentLoading.value = true; try { await addComment({ contentId: content.value.id, commentText: commentText.value }); ElMessage.success('评论成功'); commentText.value = ''; loadComments() } catch (error) { console.error(error) } finally { commentLoading.value = false } }
 const handleReply = async (parentId) => { if (!replyText.value.trim()) { ElMessage.warning('请输入回复内容'); return } try { await addComment({ contentId: content.value.id, parentId, commentText: replyText.value }); ElMessage.success('回复成功'); replyText.value = ''; replyTo.value = null; loadComments() } catch (error) { console.error(error) } }
