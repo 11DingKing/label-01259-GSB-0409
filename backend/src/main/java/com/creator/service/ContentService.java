@@ -1,6 +1,7 @@
 package com.creator.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.creator.common.BusinessException;
 import com.creator.common.PageResult;
@@ -292,48 +293,78 @@ public class ContentService {
     @Transactional
     public void purchaseContent(Long id) {
         Long userId = UserContext.getUserId();
-        
+
         Content content = contentMapper.selectById(id);
         if (content == null) {
             throw new BusinessException("内容不存在");
         }
-        
+
         if (content.getIsPaid() != 1) {
             throw new BusinessException("该内容为免费内容");
         }
-        
+
         Long count = purchaseMapper.selectCount(
                 new LambdaQueryWrapper<Purchase>()
                         .eq(Purchase::getUserId, userId)
                         .eq(Purchase::getContentId, id)
         );
-        
+
         if (count > 0) {
             throw new BusinessException("您已购买过该内容");
         }
-        
+
         User user = userMapper.selectById(userId);
         if (user.getBalance().compareTo(content.getPrice()) < 0) {
             throw new BusinessException("余额不足，请先充值");
         }
-        
-        user.setBalance(user.getBalance().subtract(content.getPrice()));
-        userMapper.updateById(user);
-        
+
+        User updateUser = new User();
+        updateUser.setBalance(user.getBalance().subtract(content.getPrice()));
+        updateUser.setVersion(user.getVersion());
+
+        LambdaUpdateWrapper<User> userUpdateWrapper = new LambdaUpdateWrapper<>();
+        userUpdateWrapper.eq(User::getId, userId)
+                .eq(User::getVersion, user.getVersion())
+                .ge(User::getBalance, content.getPrice());
+
+        int affectedRows = userMapper.update(updateUser, userUpdateWrapper);
+        if (affectedRows == 0) {
+            throw new BusinessException("账户余额更新失败，请重试");
+        }
+
         Creator creator = creatorMapper.selectById(content.getCreatorId());
-        creator.setTotalIncome(creator.getTotalIncome().add(content.getPrice()));
-        creatorMapper.updateById(creator);
-        
+        if (creator == null) {
+            throw new BusinessException("创作者信息不存在");
+        }
+
+        Creator updateCreator = new Creator();
+        updateCreator.setTotalIncome(creator.getTotalIncome().add(content.getPrice()));
+        LambdaUpdateWrapper<Creator> creatorUpdateWrapper = new LambdaUpdateWrapper<>();
+        creatorUpdateWrapper.eq(Creator::getId, creator.getId());
+        creatorMapper.update(updateCreator, creatorUpdateWrapper);
+
         User creatorUser = userMapper.selectById(creator.getUserId());
-        creatorUser.setBalance(creatorUser.getBalance().add(content.getPrice()));
-        userMapper.updateById(creatorUser);
-        
+        if (creatorUser != null) {
+            User creatorBalanceUpdate = new User();
+            creatorBalanceUpdate.setBalance(creatorUser.getBalance().add(content.getPrice()));
+            creatorBalanceUpdate.setVersion(creatorUser.getVersion());
+
+            LambdaUpdateWrapper<User> creatorBalanceWrapper = new LambdaUpdateWrapper<>();
+            creatorBalanceWrapper.eq(User::getId, creator.getUserId())
+                    .eq(User::getVersion, creatorUser.getVersion());
+
+            int creatorBalanceResult = userMapper.update(creatorBalanceUpdate, creatorBalanceWrapper);
+            if (creatorBalanceResult == 0) {
+                throw new BusinessException("创作者余额更新失败，请重试");
+            }
+        }
+
         Purchase purchase = new Purchase();
         purchase.setUserId(userId);
         purchase.setContentId(id);
         purchase.setAmount(content.getPrice());
         purchaseMapper.insert(purchase);
-        
+
         log.info("用户购买内容: userId={}, contentId={}, amount={}", userId, id, content.getPrice());
     }
     

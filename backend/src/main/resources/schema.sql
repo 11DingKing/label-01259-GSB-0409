@@ -15,7 +15,8 @@ CREATE TABLE sys_user (
     status INT DEFAULT 1,
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME DEFAULT GETDATE(),
-    deleted INT DEFAULT 0
+    deleted INT DEFAULT 0,
+    version INT DEFAULT 0
 );
 
 -- 创作者表
